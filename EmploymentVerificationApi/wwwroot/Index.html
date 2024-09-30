@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Employee</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-container {
+            margin-top: 50px;
+            max-width: 600px;
+            background-color: #f7f7f7;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .error {
+            color: red;
+            font-size: 0.875em;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="form-container">
+            <h2>Verify Employee</h2>
+            <form id="verifyEmployeeForm">
+                <div class="mb-3">
+                    <label for="employeeId" class="form-label">Employee ID</label>
+                    <input type="number" class="form-control" id="employeeId" name="employeeId" onchange="validateForm()">
+                    <span class="error" id="employeeIdError"></span>
+                </div>
+                <div class="mb-3">
+                    <label for="companyName" class="form-label">Company Name</label>
+                    <input type="text" class="form-control" id="companyName" name="companyName" onchange="validateForm()">
+                    <span class="error" id="companyNameError"></span>
+                </div>
+                <div class="mb-3">
+                    <label for="verificationCode" class="form-label">Verification Code</label>
+                    <input type="text" class="form-control" id="verificationCode" name="verificationCode" onchange="validateForm()">
+                    <span class="error" id="verificationCodeError"></span>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="button" id="resetButton" class="btn btn-secondary">Reset</button> <!-- Reset Button -->
+            </form>
+            <div id="dvResponse" style="display:none">
+                <label id="Response" class="form-label form-control"></label>
+            </div>
+        </div>
+    </div>
+    
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Function to validate form inputs
+            // Handle form submission
+            $('#verifyEmployeeForm').on('submit', function (e) {
+                e.preventDefault(); // Prevent the default form submission
+
+                // Validate the form
+                if (validateForm()) {
+                    // If the form is valid, prepare the form data for submission
+                    var formData = {
+                        EmployeeId: $('#employeeId').val(),
+                        CompanyName: $('#companyName').val(),
+                        VerificationCode: $('#verificationCode').val()
+                    };
+
+                    // Submit the form using AJAX
+                    $.ajax({
+                        url: 'https://localhost:44362/api/verify-employment',  // Update with your API endpoint
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(formData),
+                        success: function (response) {
+                            debugger
+                            $('#Response').text(response);
+                            $('#dvResponse').show();
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert('Error: ' + textStatus + ' - ' + errorThrown);
+                        }
+                    });
+                }
+            });
+
+            $('#resetButton').on('click', function () {
+                $('#verifyEmployeeForm')[0].reset(); // Reset all form fields
+                $(".error").text(""); // Clear any error messages
+            });
+        });
+
+        function validateForm() {
+            debugger
+            let isValid = true;
+
+            // Clear any previous error messages
+            $(".error").text("");
+
+            // Employee ID validation (required and number)
+            let employeeId = $("#employeeId").val();
+            if (!employeeId) {
+                $("#employeeIdError").text("Employee ID is required.");
+                isValid = false;
+            } else if (isNaN(employeeId)) {
+                $("#employeeIdError").text("Employee ID must be a number.");
+                isValid = false;
+            }
+
+            // Company Name validation (required and not empty)
+            let companyName = $("#companyName").val();
+            if (!companyName || companyName.trim() === "") {
+                $("#companyNameError").text("Company Name is required.");
+                isValid = false;
+            }
+
+            // Verification Code validation (required and not empty)
+            let verificationCode = $("#verificationCode").val();
+            if (!verificationCode || verificationCode.trim() === "") {
+                $("#verificationCodeError").text("Verification Code is required.");
+                isValid = false;
+            }
+
+            return isValid;
+        }
+    </script>
+
+</body>
+</html>
+
